@@ -18,8 +18,8 @@ const camera = new Camera(
 );
 
 const resizeHandler = () => {
-  widthResult = window.innerWidth > 900 ? 900 : window.innerWidth;
-  heightResult = Math.floor(widthResult * (ratio.h / ratio.w));
+  let widthResult = window.innerWidth > 900 ? 900 : window.innerWidth;
+  let heightResult = Math.floor(widthResult * (ratio.h / ratio.w));
   if (heightResult > window.innerHeight) {
     heightResult = window.innerHeight;
     widthResult = Math.floor(heightResult * (ratio.w / ratio.h));
