@@ -25,8 +25,8 @@ const resizeHandler = () => {
     widthResult = Math.floor(heightResult * (ratio.w / ratio.h));
   }
 
-  widthVideoResult = window.innerWidth > 356 ? 356 : window.innerWidth;
-  heightVideoResult = Math.floor(widthVideoResult * (ratio.h / ratio.w));
+  let widthVideoResult = window.innerWidth > 356 ? 356 : window.innerWidth;
+  let heightVideoResult = Math.floor(widthVideoResult * (ratio.h / ratio.w));
   if (heightVideoResult > 200) {
     heightVideoResult = 200;
     widthVideoResult = Math.floor(heightVideoResult * (ratio.w / ratio.h));
