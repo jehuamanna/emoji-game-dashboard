@@ -88,7 +88,7 @@ function draw(widthResult, heightResult) {
 })();
 
 function drawEmojiOnCanvas(canvas, contex) {
-  contex.font = "200px serif";
+  contex.font = `${parseInt(parseInt(12 * canvas.width) / 100)}px serif`;
   // use these alignment properties for "better" positioning
   contex.textAlign = "center";
   contex.textBaseline = "middle";
