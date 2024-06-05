@@ -20,10 +20,10 @@ const resizeHandler = (width, height) => {
     widthResult = Math.floor(heightResult * (ratio.w / ratio.h));
   }
 
-  let widthVideoResult = window.innerWidth > 356 ? 356 : window.innerWidth;
+  let widthVideoResult = window.innerWidth > 640 ? 640 : window.innerWidth;
   let heightVideoResult = Math.floor(widthVideoResult * (ratio.h / ratio.w));
-  if (heightVideoResult > 200) {
-    heightVideoResult = 200;
+  if (heightVideoResult > 480) {
+    heightVideoResult = 480;
     widthVideoResult = Math.floor(heightVideoResult * (ratio.w / ratio.h));
   }
   console.log(widthResult, heightResult);
@@ -73,7 +73,7 @@ function drawEmojiOnCanvas(canvas, contex) {
   contex.font = `${parseInt(parseInt(12 * canvas.width) / 100)}px serif`;
   contex.textAlign = "center";
   contex.textBaseline = "middle";
-  contex.fillText("\u{1F91A}", canvas.width / 4, canvas.height / 2);
+  contex.fillText("\u{1F91A}", canvas.width / 6, canvas.height / 2);
 }
 
 window.addEventListener("resize", () => {
