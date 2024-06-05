@@ -88,12 +88,12 @@ function draw(widthResult, heightResult) {
 })();
 
 function drawEmojiOnCanvas(canvas, contex) {
-  contex.font = "100px serif";
+  contex.font = "200px serif";
   // use these alignment properties for "better" positioning
   contex.textAlign = "center";
   contex.textBaseline = "middle";
   // draw the emoji
-  contex.fillText("😜", canvas.width / 4, canvas.height / 2);
+  contex.fillText("\u{1F91A}", canvas.width / 4, canvas.height / 2);
 }
 
 /*
