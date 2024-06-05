@@ -20,11 +20,12 @@ const resizeHandler = (width, height) => {
     widthResult = Math.floor(heightResult * (ratio.w / ratio.h));
   }
 
-  const sixtyWidth = parseInt(window.innerHeight * 0.6);
+  const sixtyWidth = parseInt(widthResult * 0.6);
+  const sixtyHeight = parseInt(heightResult * 0.6);
   // let widthVideoResult = window.innerWidth > 640 ? 640 : window.innerWidth;
   let widthVideoResult = sixtyWidth;
   let heightVideoResult = Math.floor(widthVideoResult * (ratio.h / ratio.w));
-  if (heightVideoResult > 480) {
+  if (heightVideoResult > sixtyHeight) {
     heightVideoResult = 480;
     widthVideoResult = Math.floor(heightVideoResult * (ratio.w / ratio.h));
   }
