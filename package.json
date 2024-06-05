@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "source": "src/index.html",
   "scripts": {
-    "start": "parcel --dist-dir public",
-    "build": "parcel build --dist-dir public"
+    "start": "parcel ",
+    "build": "parcel build "
   },
   "author": "",
   "license": "ISC",
