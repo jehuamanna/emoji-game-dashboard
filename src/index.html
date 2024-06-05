@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playground</title>
+    <style></style>
+  </head>
+
+  <body>
+    <div>
+      <div
+        id="video-div"
+        style="
+          position: relative;
+          width: 900;
+          aspect-ratio: 16 / 9;
+          height: 480px;
+        "
+      >
+        <video
+          id="webcam"
+          autoplay
+          playsinline
+          width="356"
+          height="200"
+          style="position: absolute; bottom: 0; right: 0; z-index: 10"
+        ></video>
+
+        <!-- <canvas id="canvas"></canvas> -->
+        <canvas
+          id="dashboard-canvas"
+          style="position: absolute; top: 0; left: 0"
+        ></canvas>
+        <!-- <audio id="snapSound" src="audio/snap.wav" preload="auto"></audio> -->
+      </div>
+    </div>
+    <script type="module" src="./js/script.js" />
+  </body>
+</html>
