@@ -98,7 +98,6 @@ export default class Webcam {
     */
   async start(startStream = true) {
     return new Promise(async (resolve, reject) => {
-      const resolv = await this.getWebcamResolution();
       this.stop();
       navigator.mediaDevices
         .getUserMedia(this.getMediaConstraints()) //get permisson from user
@@ -111,9 +110,9 @@ export default class Webcam {
               if (startStream) {
                 this.stream()
                   .then((facingMode) => {
-                    console.log(facingMode);
+                    console.log("fM", facingMode);
 
-                    resolve(resolv);
+                    resolve(facingMode);
                   })
                   .catch((error) => {
                     reject(error);
@@ -160,7 +159,6 @@ export default class Webcam {
           const width = video.videoWidth;
           const height = video.videoHeight;
           console.log(`Resolution: ${width} x ${height}`);
-          stream.getTracks().forEach((track) => track.stop()); // Stop the stream after getting resolution
           resolve([width, height]);
         };
       } catch (error) {
@@ -182,11 +180,9 @@ export default class Webcam {
             this._webcamElement.style.transform = "scale(-1,1)";
           }
           this._webcamElement.play();
-          console.table();
-          resolve({
-            facingMode: this._facingMode,
-            width: this._webcamElement.videoWidth,
-            height: this._webcamElement.videoHeight,
+          this.getWebcamResolution().then((x) => {
+            console.log(x);
+            resolve(x);
           });
         })
         .catch((error) => {

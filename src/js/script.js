@@ -10,7 +10,7 @@ const ratio = {
   w: 16,
 };
 
-const resizeHandler = (width, height) => {
+const resizeHandler = () => {
   const ratio = { h: window.videoHeight, w: videoWidth };
 
   let widthResult = window.innerWidth > 900 ? 900 : window.innerWidth;
@@ -20,8 +20,8 @@ const resizeHandler = (width, height) => {
     widthResult = Math.floor(heightResult * (ratio.w / ratio.h));
   }
 
-  const sixtyWidth = parseInt(widthResult * 0.6);
-  const sixtyHeight = parseInt(heightResult * 0.6);
+  const sixtyWidth = parseInt(widthResult * 0.4);
+  const sixtyHeight = parseInt(heightResult * 0.4);
   // let widthVideoResult = window.innerWidth > 640 ? 640 : window.innerWidth;
   let widthVideoResult = sixtyWidth;
   let heightVideoResult = Math.floor(widthVideoResult * (ratio.h / ratio.w));
@@ -44,8 +44,8 @@ const resizeHandler = (width, height) => {
       element.width = widthResult;
       element.height = heightResult;
     } else {
-      element.style.width = `${widthVideoResult}px`;
-      element.style.height = `${heightVideoResult}px`;
+      element.style.width = `${widthResult}px`;
+      element.style.height = `${heightResult}px`;
     }
   }
   draw(widthResult, heightResult);
@@ -53,28 +53,35 @@ const resizeHandler = (width, height) => {
 
 function draw(widthResult, heightResult) {
   const ctx = dashboardCanvasElement.getContext("2d");
-  // ctx.width = cameralement.videoWidth;
-  // ctx.height = cameralement.videoHeight;
-
-  // videoDivElement.width = cameralement.videoWidth;
-  // videoDivElement.height = cameralement.videoHeight;
   // var randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
   // ctx.fillStyle = randomColor;
-  ctx.fillStyle = "#2A8282";
+  ctx.fillStyle = "rgba(0, 0, 0, 0)";
   ctx.clearRect(
     0,
     0,
     dashboardCanvasElement.width,
     dashboardCanvasElement.height
   );
+  drawCircle(dashboardCanvasElement, ctx);
 
-  ctx.fillRect(0, 0, widthResult, heightResult);
   drawEmojiOnCanvas(dashboardCanvasElement, ctx);
+}
+
+function drawCircle(canvas, context) {
+  var centerX = canvas.width / 6;
+  var centerY = canvas.height / 2;
+  var radius = 0.1 * canvas.width;
+
+  context.beginPath();
+  context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+  context.fillStyle = "#4b9fc9";
+  context.fill();
 }
 
 function drawEmojiOnCanvas(canvas, contex) {
   contex.font = `${parseInt(parseInt(12 * canvas.width) / 100)}px serif`;
   contex.textAlign = "center";
+  contex.fillStyle = "black";
   contex.textBaseline = "middle";
   contex.fillText("\u{1F91A}", canvas.width / 6, canvas.height / 2);
 }
@@ -83,47 +90,15 @@ window.addEventListener("resize", () => {
   resizeHandler();
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  (async () => {
-    const camera = new Camera(
-      cameralement,
-      "user",
-      canvasElement,
-      snapSoundElement
-    );
-    let videoWidth;
-    let videoHeight;
-    const resolution = await camera.start();
-    console.log("rrr", resolution);
-
-    // cameralement.addEventListener("onloadedmetadata", function () {
-    //   const width = cameralement.videoWidth;
-    //   const height = cameralement.videoHeight;
-    //   console.log(`Resolution: ${width} x ${height}`);
-    // });
-
-    cameralement.onloadedmetadata = function () {
-      const width = cameralement.videoWidth;
-      const height = cameralement.videoHeight;
-      window.videoWidth = width;
-      window.videoHeight = height;
-      console.log(`Resolution: ${width} x ${height}`);
-      resizeHandler(width, height);
-    };
-
-    /*
-      
-      video: {
-        optional: [
-          {minWidth: 320},
-          {minWidth: 640}, 480
-          {minWidth: 1024},
-          {minWidth: 1280},
-          {minWidth: 1920},
-          {minWidth: 2560},
-        ]
-      }
-      
-      */
-  })();
-});
+(async () => {
+  const camera = new Camera(
+    cameralement,
+    "user",
+    canvasElement,
+    snapSoundElement
+  );
+  const [width, height] = await camera.start();
+  window.videoWidth = width;
+  window.videoHeight = height;
+  resizeHandler();
+})();
