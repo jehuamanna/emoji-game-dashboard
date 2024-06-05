@@ -69,7 +69,7 @@ function draw(widthResult, heightResult) {
 
 function drawCircle(canvas, context) {
   var centerX = canvas.width / 6;
-  var centerY = canvas.height / 2;
+  var centerY = canvas.height / 4;
   var radius = 0.1 * canvas.width;
 
   context.beginPath();
@@ -83,7 +83,7 @@ function drawEmojiOnCanvas(canvas, contex) {
   contex.textAlign = "center";
   contex.fillStyle = "black";
   contex.textBaseline = "middle";
-  contex.fillText("\u{1F91A}", canvas.width / 6, canvas.height / 2);
+  contex.fillText("\u{1F91A}", canvas.width / 6, canvas.height / 4);
 }
 
 window.addEventListener("resize", () => {
