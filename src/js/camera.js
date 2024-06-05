@@ -6,14 +6,15 @@ export default class Webcam {
     snapSoundElement = null
   ) {
     this._webcamElement = webcamElement;
-    this._webcamElement.width = this._webcamElement.width || 4096;
-    this._webcamElement.height = this._webcamElement.height || 2160;
+    this._webcamElement.width = this._webcamElement.width;
+    this._webcamElement.height = this._webcamElement.height;
     this._facingMode = facingMode;
     this._webcamList = [];
     this._streamList = [];
     this._selectedDeviceId = "";
     this._canvasElement = canvasElement;
     this._snapSoundElement = snapSoundElement;
+    this.resolution = [];
   }
 
   get facingMode() {
@@ -96,7 +97,8 @@ export default class Webcam {
       4. Start stream
     */
   async start(startStream = true) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const resolv = await this.getWebcamResolution();
       this.stop();
       navigator.mediaDevices
         .getUserMedia(this.getMediaConstraints()) //get permisson from user
@@ -110,7 +112,8 @@ export default class Webcam {
                 this.stream()
                   .then((facingMode) => {
                     console.log(facingMode);
-                    resolve(this._facingMode);
+
+                    resolve(resolv);
                   })
                   .catch((error) => {
                     reject(error);
@@ -142,6 +145,27 @@ export default class Webcam {
         .catch((error) => {
           reject(error);
         });
+    });
+  }
+
+  getWebcamResolution() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const constraints = { video: true };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = this._webcamElement;
+        video.srcObject = stream;
+
+        video.onloadedmetadata = function () {
+          const width = video.videoWidth;
+          const height = video.videoHeight;
+          console.log(`Resolution: ${width} x ${height}`);
+          stream.getTracks().forEach((track) => track.stop()); // Stop the stream after getting resolution
+          resolve([width, height]);
+        };
+      } catch (error) {
+        console.error("Error accessing webcam:", error);
+      }
     });
   }
 

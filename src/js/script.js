@@ -10,14 +10,9 @@ const ratio = {
   w: 16,
 };
 
-const camera = new Camera(
-  cameralement,
-  "user",
-  canvasElement,
-  snapSoundElement
-);
+const resizeHandler = (width, height) => {
+  const ratio = { h: window.videoHeight, w: videoWidth };
 
-const resizeHandler = () => {
   let widthResult = window.innerWidth > 900 ? 900 : window.innerWidth;
   let heightResult = Math.floor(widthResult * (ratio.h / ratio.w));
   if (heightResult > window.innerHeight) {
@@ -41,7 +36,6 @@ const resizeHandler = () => {
 
   for (let i = 0; i < videoDivElement.children.length; i += 1) {
     const element = videoDivElement.children[i];
-    console.log(element.tagName);
     if (element.tagName === "CANVAS") {
       // console.log(widthResult, heightResult);
       element.width = widthResult;
@@ -53,13 +47,6 @@ const resizeHandler = () => {
   }
   draw(widthResult, heightResult);
 };
-
-// First run to auto adjust screen
-resizeHandler();
-
-window.addEventListener("resize", () => {
-  resizeHandler();
-});
 
 function draw(widthResult, heightResult) {
   const ctx = dashboardCanvasElement.getContext("2d");
@@ -77,36 +64,63 @@ function draw(widthResult, heightResult) {
     dashboardCanvasElement.width,
     dashboardCanvasElement.height
   );
-  console.log("ee", widthResult, heightResult);
 
   ctx.fillRect(0, 0, widthResult, heightResult);
   drawEmojiOnCanvas(dashboardCanvasElement, ctx);
 }
 
-(async () => {
-  camera.start().then(() => {});
-})();
-
 function drawEmojiOnCanvas(canvas, contex) {
   contex.font = `${parseInt(parseInt(12 * canvas.width) / 100)}px serif`;
-  // use these alignment properties for "better" positioning
   contex.textAlign = "center";
   contex.textBaseline = "middle";
-  // draw the emoji
   contex.fillText("\u{1F91A}", canvas.width / 4, canvas.height / 2);
 }
 
-/*
+window.addEventListener("resize", () => {
+  resizeHandler();
+});
 
-video: {
-  optional: [
-    {minWidth: 320},
-    {minWidth: 640}, 480
-    {minWidth: 1024},
-    {minWidth: 1280},
-    {minWidth: 1920},
-    {minWidth: 2560},
-  ]
-}
+document.addEventListener("DOMContentLoaded", function () {
+  (async () => {
+    const camera = new Camera(
+      cameralement,
+      "user",
+      canvasElement,
+      snapSoundElement
+    );
+    let videoWidth;
+    let videoHeight;
+    const resolution = await camera.start();
+    console.log("rrr", resolution);
 
-*/
+    // cameralement.addEventListener("onloadedmetadata", function () {
+    //   const width = cameralement.videoWidth;
+    //   const height = cameralement.videoHeight;
+    //   console.log(`Resolution: ${width} x ${height}`);
+    // });
+
+    cameralement.onloadedmetadata = function () {
+      const width = cameralement.videoWidth;
+      const height = cameralement.videoHeight;
+      window.videoWidth = width;
+      window.videoHeight = height;
+      console.log(`Resolution: ${width} x ${height}`);
+      resizeHandler(width, height);
+    };
+
+    /*
+      
+      video: {
+        optional: [
+          {minWidth: 320},
+          {minWidth: 640}, 480
+          {minWidth: 1024},
+          {minWidth: 1280},
+          {minWidth: 1920},
+          {minWidth: 2560},
+        ]
+      }
+      
+      */
+  })();
+});
