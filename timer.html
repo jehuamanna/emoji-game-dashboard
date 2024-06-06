@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Timer</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      canvas {
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="timerCanvas" width="200" height="200"></canvas>
+
+    <script>
+      const canvas = document.getElementById("timerCanvas");
+      const ctx = canvas.getContext("2d");
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 90;
+
+      let startTime = Date.now();
+
+      function drawCircle() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw aqua green circle
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = "aquagreen";
+        ctx.fill();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#003300";
+        ctx.stroke();
+
+        // Draw the timer text
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        ctx.fillStyle = "black";
+        ctx.font = "24px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(elapsedTime + " s", centerX, centerY);
+      }
+
+      function updateTimer() {
+        drawCircle();
+        requestAnimationFrame(updateTimer);
+      }
+
+      updateTimer();
+    </script>
+  </body>
+</html>

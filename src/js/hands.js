@@ -33,6 +33,7 @@ export default class HandsController {
     this.seqDict = undefined;
     this.emoji_ = undefined;
     this.string_ = undefined;
+    this.startTime = 0;
   }
 
   getShuffledDictionary() {
@@ -57,6 +58,7 @@ export default class HandsController {
     });
     this.hands.onResults(this.onResults);
     this.onFrame();
+    this.startTime = Date.now();
   }
 
   onFrame() {
@@ -84,9 +86,9 @@ export default class HandsController {
     this.canvasDBCtx.fill();
   }
 
-  drawEmojiOnCanvas(emoji, x, y) {
+  drawEmojiOnCanvas(emoji, x, y, fontSize = 8) {
     this.canvasDBCtx.font = `${parseInt(
-      parseInt(12 * this.canvasDB.width) / 100
+      parseInt(fontSize * this.canvasDB.width) / 100
     )}px serif`;
     this.canvasDBCtx.textAlign = "center";
     this.canvasDBCtx.fillStyle = "black";
@@ -136,9 +138,17 @@ export default class HandsController {
     const emojiY = this.canvasDB.height / 4;
     const scoreX = (this.canvas.width * 5) / 6;
     const scoreY = this.canvas.height / 4;
+    const timeX = this.canvas.width / 2;
+    const timeY = this.canvas.height / 4;
+    const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+    const minutes = Math.floor(elapsedTime / 60);
+    const remainingSeconds = elapsedTime % 60;
 
-    this.drawCircle("purple", scoreX, scoreY);
     this.drawEmojiOnCanvas(this.count, scoreX, scoreY);
+    this.drawCircle("#28683c", scoreX, scoreY);
+    this.drawCircle("orange", timeX, timeY);
+    this.drawEmojiOnCanvas(this.count, scoreX, scoreY);
+    this.drawEmojiOnCanvas(`${minutes} : ${remainingSeconds}`, timeX, timeY);
 
     if (results?.multiHandedness?.[0] || results?.multiHandedness?.[1]) {
       const x = checkActions(
