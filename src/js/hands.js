@@ -74,7 +74,6 @@ export default class HandsController {
   }
 
   drawCircle(emoji, color) {
-    console.log("eee", emoji);
     var centerX = this.canvasDB.width / 6;
     var centerY = this.canvasDB.height / 4;
     var radius = 0.1 * this.canvasDB.width;
@@ -123,13 +122,15 @@ export default class HandsController {
         const isRightHand = classification.label === "Right";
         const landmarks = results.multiHandLandmarks[index];
         drawConnectors(this.canvasCtx, landmarks, HAND_CONNECTIONS, {
-          color: isRightHand ? "#00FF00" : "#FF0000",
+          color: isRightHand ? "#f23484" : "#fa614b",
+          lineWidth: 1,
         });
         drawLandmarks(this.canvasCtx, landmarks, {
-          color: isRightHand ? "#00FF00" : "#FF0000",
-          fillColor: isRightHand ? "#FF0000" : "#00FF00",
+          color: isRightHand ? "#dd9a1f0" : "#dd9a1f0",
+          fillColor: isRightHand ? "#fa404e" : "#e0784a",
+          lineWidth: 1,
           radius: (data) => {
-            return lerp(data.from.z, -0.15, 0.1, 10, 1);
+            return lerp(data.from.z, -0.15, 0.1, 5, 1);
           },
         });
       }
@@ -141,21 +142,21 @@ export default class HandsController {
         this.string_,
         results.multiHandLandmarks?.[0] || results.multiHandLandmarks?.[0]
       );
-      console.log(x, this.string_, this.emoji_);
+      // console.log(x, this.string_, this.emoji_);
 
       if (x) {
         this.drawCircle(this.emoji_, "green");
         setTimeout(() => {
-          this.drawCircle(this.emoji_, "white");
+          this.drawCircle(this.emoji_, "#c70000");
         }, 1000);
         this.seqDict = this.getShuffledDictionary();
         this.emoji_ = Object.values(this.seqDict)[0];
         this.string_ = Object.keys(this.seqDict)[0];
       } else {
-        this.drawCircle(this.emoji_, "white");
+        this.drawCircle(this.emoji_, "#c70000");
       }
     } else {
-      this.drawCircle(this.emoji_, "white");
+      this.drawCircle(this.emoji_, "#c70000");
     }
 
     this.canvasCtx.restore();
