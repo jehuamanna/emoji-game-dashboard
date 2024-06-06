@@ -1,4 +1,5 @@
-import { Hands } from "@mediapipe/hands";
+import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
+import { drawConnectors, lerp, drawLandmarks } from "@mediapipe/drawing_utils";
 const config = {
   locateFile: (file) => {
     return `/assets/models-assets/${file}`;
@@ -6,78 +7,94 @@ const config = {
 };
 
 export default class HandsController {
-  constructor() {}
-
-  init() {
+  constructor(video, canvas, canvasDB) {
+    this.video = video;
+    this.canvas = canvas;
+    this.canvasCtx = canvas.getContext("2d");
+    this.canvasDB = canvasDB;
+    this.canvasDBCtx = canvasDB.getContext("2d");
+    this.onResults = this.onResults.bind(this);
+    this.onResults = this.onResults.bind(this);
     const hands = new Hands(config);
-    hands.onResults(this.onResults);
+    this.hands = hands;
   }
+  async init() {
+    await this.hands.initialize();
+    this.hands.setOptions({
+      selfieMode: true,
+      maxNumHands: 2,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+    this.hands.onResults(this.onResults);
+    this.onFrame();
+  }
+
+  async onFrame() {
+    await this.hands.send({ image: this.video });
+    requestAnimationFrame(this.onFrame.bind(this));
+  }
+  drawCircle() {
+    var centerX = this.canvasDB.width / 6;
+    var centerY = this.canvasDB.height / 4;
+    var radius = 0.1 * this.canvasDB.width;
+
+    this.canvasDBCtx.beginPath();
+    this.canvasDBCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    this.canvasDBCtx.fillStyle = "#4b9fc9";
+    this.canvasDBCtx.fill();
+    this.drawEmojiOnCanvas();
+  }
+
+  drawEmojiOnCanvas() {
+    this.canvasDBCtx.font = `${parseInt(
+      parseInt(12 * this.canvasDB.width) / 100
+    )}px serif`;
+    this.canvasDBCtx.textAlign = "center";
+    this.canvasDBCtx.fillStyle = "black";
+    this.canvasDBCtx.textBaseline = "middle";
+    this.canvasDBCtx.fillText(
+      "\u{1F91A}",
+      this.canvasDB.width / 6,
+      this.canvasDB.height / 4
+    );
+  }
+
   onResults(results) {
     // Hide the spinner.
-    alert(9);
 
     // Update the frame rate.
-    fpsControl.tick();
     // Draw the overlays.
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(
+    this.canvasCtx.save();
+
+    this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.canvasCtx.drawImage(
       results.image,
       0,
       0,
-      canvasElement.width,
-      canvasElement.height
+      this.canvas.width,
+      this.canvas.height
     );
     if (results.multiHandLandmarks && results.multiHandedness) {
       for (let index = 0; index < results.multiHandLandmarks.length; index++) {
         const classification = results.multiHandedness[index];
         const isRightHand = classification.label === "Right";
         const landmarks = results.multiHandLandmarks[index];
-        drawingUtils.drawConnectors(
-          canvasCtx,
-          landmarks,
-          mpHands.HAND_CONNECTIONS,
-          { color: isRightHand ? "#00FF00" : "#FF0000" }
-        );
-        drawingUtils.drawLandmarks(canvasCtx, landmarks, {
+        drawConnectors(this.canvasCtx, landmarks, HAND_CONNECTIONS, {
+          color: isRightHand ? "#00FF00" : "#FF0000",
+        });
+        drawLandmarks(this.canvasCtx, landmarks, {
           color: isRightHand ? "#00FF00" : "#FF0000",
           fillColor: isRightHand ? "#FF0000" : "#00FF00",
           radius: (data) => {
-            return drawingUtils.lerp(data.from.z, -0.15, 0.1, 10, 1);
+            return lerp(data.from.z, -0.15, 0.1, 10, 1);
           },
         });
       }
     }
-    canvasCtx.restore();
-    if (results.multiHandWorldLandmarks) {
-      // We only get to call updateLandmarks once, so we need to cook the data to
-      // fit. The landmarks just merge, but the connections need to be offset.
-      const landmarks = results.multiHandWorldLandmarks.reduce(
-        (prev, current) => [...prev, ...current],
-        []
-      );
-      const colors = [];
-      let connections = [];
-      for (
-        let loop = 0;
-        loop < results.multiHandWorldLandmarks.length;
-        ++loop
-      ) {
-        const offset = loop * mpHands.HAND_CONNECTIONS.length;
-        const offsetConnections = mpHands.HAND_CONNECTIONS.map((connection) => [
-          connection[0] + offset,
-          connection[1] + offset,
-        ]);
-        connections = connections.concat(offsetConnections);
-        const classification = results.multiHandedness[loop];
-        colors.push({
-          list: offsetConnections.map((unused, i) => i + offset),
-          color: classification.label,
-        });
-      }
-      grid.updateLandmarks(landmarks, connections, colors);
-    } else {
-      grid.updateLandmarks([]);
-    }
+
+    this.canvasCtx.restore();
   }
 }

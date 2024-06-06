@@ -98,10 +98,14 @@ window.addEventListener("resize", () => {
     canvasElement,
     snapSoundElement
   );
-  const [width, height] = await camera.start();
+  const [width, height] = await camera.getWebcamResolution();
   window.videoWidth = width;
   window.videoHeight = height;
   resizeHandler();
-  const handsController = new HandsController();
-  handsController.init();
+  const handsController = new HandsController(
+    cameralement,
+    canvasElement,
+    dashboardCanvasElement
+  );
+  await handsController.init();
 })();

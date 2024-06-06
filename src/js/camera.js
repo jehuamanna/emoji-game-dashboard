@@ -96,6 +96,7 @@ export default class Webcam {
       3. Select camera based on facingMode 
       4. Start stream
     */
+
   async start(startStream = true) {
     return new Promise(async (resolve, reject) => {
       this.stop();
@@ -150,7 +151,7 @@ export default class Webcam {
   getWebcamResolution() {
     return new Promise(async (resolve, reject) => {
       try {
-        const constraints = { video: true };
+        const constraints = this.getMediaConstraints();
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = this._webcamElement;
         video.srcObject = stream;
@@ -159,6 +160,7 @@ export default class Webcam {
           const width = video.videoWidth;
           const height = video.videoHeight;
           console.log(`Resolution: ${width} x ${height}`);
+          // stream.getTracks().forEach((track) => track.stop()); // Stop the stream after getting resolution
           resolve([width, height]);
         };
       } catch (error) {

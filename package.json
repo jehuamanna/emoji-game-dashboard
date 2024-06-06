@@ -6,6 +6,13 @@
     "start": "parcel ",
     "build": "parcel build "
   },
+  "targets": {
+    "default": {
+      "source": "src/index.html",
+      "context": "browser",
+      "outputFormat": "esmodule"
+    }
+  },
   "author": "",
   "license": "ISC",
   "description": "",
@@ -14,6 +21,7 @@
     "parcel-reporter-static-files-copy": "^1.5.3"
   },
   "dependencies": {
+    "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/hands": "^0.4.1675469240"
   }
 }
