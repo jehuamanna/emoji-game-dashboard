@@ -172,7 +172,7 @@ export default class HandsController {
       `Emojies\nper\nMinute:\n\n${parseInt(this.count / (elapsedTime / 60))}`,
       speedX,
       speedY - 0.05 * this.canvasDB.width,
-      35
+      0.035 * this.canvasDB.width
     );
 
     if (results?.multiHandedness?.[0] || results?.multiHandedness?.[1]) {
