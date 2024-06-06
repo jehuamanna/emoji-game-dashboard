@@ -163,7 +163,7 @@ export default class HandsController {
         this.string_,
         results.multiHandLandmarks?.[0] || results.multiHandLandmarks?.[0]
       );
-      // console.log(x, this.string_, this.emoji_);
+      console.log(x, this.string_, this.emoji_);
 
       if (x) {
         this.count++;
