@@ -1,6 +1,7 @@
 import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
 import { drawConnectors, lerp, drawLandmarks } from "@mediapipe/drawing_utils";
 import { checkActions } from "./emoji-detector";
+import DrawingUtils from "./canvasDrawUtils";
 const config = {
   locateFile: (file) => {
     return `/assets/models-assets/${file}`;
@@ -28,6 +29,7 @@ export default class HandsController {
     this.canvasDBCtx = canvasDB.getContext("2d");
     this.onResults = this.onResults.bind(this);
     this.onFrame = this.onFrame.bind(this);
+    this.draw = this.draw.bind(this);
     this.hands = new Hands(config);
     this.count = 0;
     this.seqDict = undefined;
@@ -56,6 +58,7 @@ export default class HandsController {
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
+    this.du = new DrawingUtils(this.canvasDB);
     this.hands.onResults(this.onResults);
     this.onFrame();
     this.startTime = Date.now();
@@ -63,14 +66,12 @@ export default class HandsController {
 
   onFrame() {
     const animate = () => {
-      this.hands
-        .send({ image: this.video })
-        .then(() => {
-          return new Promise((resolve, reject) => {
-            requestAnimationFrame(resolve);
-          });
-        })
-        .then(animate);
+      return new Promise((resolve, reject) => {
+        this.hands.send({ image: this.video }).then(() => {
+          // this.draw();
+          requestAnimationFrame(resolve);
+        });
+      }).then(animate);
     };
     return animate();
   }
@@ -96,12 +97,19 @@ export default class HandsController {
     this.canvasDBCtx.fillText(emoji, x, y);
   }
 
+  draw() {
+    this.du.drawText();
+    // requestAnimationFrame(this.draw);
+  }
+
   onResults(results) {
     // Hide the spinner.
 
     // Update the frame rate.
     // Draw the overlays.
     this.canvasCtx.save();
+    // this.du.drawText();
+
     this.seqDict = this.getShuffledDictionary();
 
     this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
