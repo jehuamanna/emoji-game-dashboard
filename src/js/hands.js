@@ -29,7 +29,7 @@ export default class HandsController {
     this.onResults = this.onResults.bind(this);
     this.onFrame = this.onFrame.bind(this);
     this.hands = new Hands(config);
-
+    this.count = 0;
     this.seqDict = undefined;
     this.emoji_ = undefined;
     this.string_ = undefined;
@@ -73,30 +73,25 @@ export default class HandsController {
     return animate();
   }
 
-  drawCircle(emoji, color) {
-    var centerX = this.canvasDB.width / 6;
-    var centerY = this.canvasDB.height / 4;
+  drawCircle(color, x, y) {
+    var centerX = x;
+    var centerY = y;
     var radius = 0.1 * this.canvasDB.width;
 
     this.canvasDBCtx.beginPath();
     this.canvasDBCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
     this.canvasDBCtx.fillStyle = color; //"#4b9fc9";
     this.canvasDBCtx.fill();
-    this.drawEmojiOnCanvas(emoji);
   }
 
-  drawEmojiOnCanvas(emoji) {
+  drawEmojiOnCanvas(emoji, x, y) {
     this.canvasDBCtx.font = `${parseInt(
       parseInt(12 * this.canvasDB.width) / 100
     )}px serif`;
     this.canvasDBCtx.textAlign = "center";
     this.canvasDBCtx.fillStyle = "black";
     this.canvasDBCtx.textBaseline = "middle"; //"\u{1F91A}"
-    this.canvasDBCtx.fillText(
-      emoji,
-      this.canvasDB.width / 6,
-      this.canvasDB.height / 4
-    );
+    this.canvasDBCtx.fillText(emoji, x, y);
   }
 
   onResults(results) {
@@ -137,6 +132,14 @@ export default class HandsController {
     }
     // console.log(results);
 
+    const emojiX = this.canvasDB.width / 6;
+    const emojiY = this.canvasDB.height / 4;
+    const scoreX = (this.canvas.width * 5) / 6;
+    const scoreY = this.canvas.height / 4;
+
+    this.drawCircle("purple", scoreX, scoreY);
+    this.drawEmojiOnCanvas(this.count, scoreX, scoreY);
+
     if (results.multiHandedness?.[0] || results.multiHandedness?.[1]) {
       const x = checkActions(
         this.string_,
@@ -145,20 +148,24 @@ export default class HandsController {
       // console.log(x, this.string_, this.emoji_);
 
       if (x) {
-        this.drawCircle(this.emoji_, "green");
+        this.count++;
+        this.drawCircle("green", emojiX, emojiY);
+        this.drawEmojiOnCanvas(this.emoji_, emojiX, emojiY);
         setTimeout(() => {
-          this.drawCircle(this.emoji_, "#c70000");
+          this.drawCircle("#c70000", emojiX, emojiY);
+          this.drawEmojiOnCanvas(this.emoji_, emojiX, emojiY);
         }, 1000);
         this.seqDict = this.getShuffledDictionary();
         this.emoji_ = Object.values(this.seqDict)[0];
         this.string_ = Object.keys(this.seqDict)[0];
       } else {
-        this.drawCircle(this.emoji_, "#c70000");
+        this.drawCircle("#c70000", emojiX, emojiY);
+        this.drawEmojiOnCanvas(this.emoji_, emojiX, emojiY);
       }
     } else {
-      this.drawCircle(this.emoji_, "#c70000");
+      this.drawCircle("#c70000", emojiX, emojiY);
+      this.drawEmojiOnCanvas(this.emoji_, emojiX, emojiY);
     }
-
     this.canvasCtx.restore();
   }
 }
