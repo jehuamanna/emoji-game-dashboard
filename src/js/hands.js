@@ -1,9 +1,22 @@
 import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
 import { drawConnectors, lerp, drawLandmarks } from "@mediapipe/drawing_utils";
+import { checkActions } from "./emoji-detector";
 const config = {
   locateFile: (file) => {
     return `/assets/models-assets/${file}`;
   },
+};
+
+const emojies = {
+  upward_palm: "\u{1F91A}",
+  thumbs_up: "\u{1F44D}",
+  victory: "\u{270C}",
+  left_pointing: "\u{1F448}",
+  right_pointing: "\u{1F449}",
+  upward_pointing: "\u{1F446}",
+  downward_pointing: "\u{1F447}",
+  left_palm: "\u{1FAF2}",
+  right_palm: "\u{1FAF1}",
 };
 
 export default class HandsController {
@@ -14,11 +27,26 @@ export default class HandsController {
     this.canvasDB = canvasDB;
     this.canvasDBCtx = canvasDB.getContext("2d");
     this.onResults = this.onResults.bind(this);
-    this.onResults = this.onResults.bind(this);
-    const hands = new Hands(config);
-    this.hands = hands;
+    this.onFrame = this.onFrame.bind(this);
+    this.hands = new Hands(config);
+
+    this.seqDict = undefined;
+    this.emoji_ = undefined;
+    this.string_ = undefined;
+  }
+
+  getShuffledDictionary() {
+    const items = Object.entries(emojies);
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return Object.fromEntries(items);
   }
   async init() {
+    this.seqDict = this.getShuffledDictionary();
+    this.emoji_ = Object.values(this.seqDict)[0];
+    this.string_ = Object.keys(this.seqDict)[0];
     await this.hands.initialize();
     this.hands.setOptions({
       selfieMode: true,
@@ -31,31 +59,42 @@ export default class HandsController {
     this.onFrame();
   }
 
-  async onFrame() {
-    await this.hands.send({ image: this.video });
-    requestAnimationFrame(this.onFrame.bind(this));
+  onFrame() {
+    const animate = () => {
+      this.hands
+        .send({ image: this.video })
+        .then(() => {
+          return new Promise((resolve, reject) => {
+            requestAnimationFrame(resolve);
+          });
+        })
+        .then(animate);
+    };
+    return animate();
   }
-  drawCircle() {
+
+  drawCircle(emoji, color) {
+    console.log("eee", emoji);
     var centerX = this.canvasDB.width / 6;
     var centerY = this.canvasDB.height / 4;
     var radius = 0.1 * this.canvasDB.width;
 
     this.canvasDBCtx.beginPath();
     this.canvasDBCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    this.canvasDBCtx.fillStyle = "#4b9fc9";
+    this.canvasDBCtx.fillStyle = color; //"#4b9fc9";
     this.canvasDBCtx.fill();
-    this.drawEmojiOnCanvas();
+    this.drawEmojiOnCanvas(emoji);
   }
 
-  drawEmojiOnCanvas() {
+  drawEmojiOnCanvas(emoji) {
     this.canvasDBCtx.font = `${parseInt(
       parseInt(12 * this.canvasDB.width) / 100
     )}px serif`;
     this.canvasDBCtx.textAlign = "center";
     this.canvasDBCtx.fillStyle = "black";
-    this.canvasDBCtx.textBaseline = "middle";
+    this.canvasDBCtx.textBaseline = "middle"; //"\u{1F91A}"
     this.canvasDBCtx.fillText(
-      "\u{1F91A}",
+      emoji,
       this.canvasDB.width / 6,
       this.canvasDB.height / 4
     );
@@ -67,6 +106,7 @@ export default class HandsController {
     // Update the frame rate.
     // Draw the overlays.
     this.canvasCtx.save();
+    this.seqDict = this.getShuffledDictionary();
 
     this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -93,6 +133,29 @@ export default class HandsController {
           },
         });
       }
+    }
+    // console.log(results);
+
+    if (results.multiHandedness?.[0] || results.multiHandedness?.[1]) {
+      const x = checkActions(
+        this.string_,
+        results.multiHandLandmarks?.[0] || results.multiHandLandmarks?.[0]
+      );
+      console.log(x, this.string_, this.emoji_);
+
+      if (x) {
+        this.drawCircle(this.emoji_, "green");
+        setTimeout(() => {
+          this.drawCircle(this.emoji_, "white");
+        }, 1000);
+        this.seqDict = this.getShuffledDictionary();
+        this.emoji_ = Object.values(this.seqDict)[0];
+        this.string_ = Object.keys(this.seqDict)[0];
+      } else {
+        this.drawCircle(this.emoji_, "white");
+      }
+    } else {
+      this.drawCircle(this.emoji_, "white");
     }
 
     this.canvasCtx.restore();

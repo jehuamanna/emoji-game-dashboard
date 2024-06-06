@@ -49,10 +49,9 @@ const resizeHandler = () => {
       element.style.height = `${heightResult}px`;
     }
   }
-  draw(widthResult, heightResult);
 };
 
-function draw(widthResult, heightResult) {
+function draw() {
   const ctx = dashboardCanvasElement.getContext("2d");
   // var randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
   // ctx.fillStyle = randomColor;
@@ -66,6 +65,7 @@ function draw(widthResult, heightResult) {
   drawCircle(dashboardCanvasElement, ctx);
 
   drawEmojiOnCanvas(dashboardCanvasElement, ctx);
+  // requestAnimationFrame(draw);
 }
 
 function drawCircle(canvas, context) {
@@ -108,4 +108,5 @@ window.addEventListener("resize", () => {
     dashboardCanvasElement
   );
   await handsController.init();
+  handsController.onFrame();
 })();
