@@ -140,7 +140,7 @@ export default class HandsController {
     this.drawCircle("purple", scoreX, scoreY);
     this.drawEmojiOnCanvas(this.count, scoreX, scoreY);
 
-    if (results.multiHandedness?.[0] || results.multiHandedness?.[1]) {
+    if (results?.multiHandedness?.[0] || results?.multiHandedness?.[1]) {
       const x = checkActions(
         this.string_,
         results.multiHandLandmarks?.[0] || results.multiHandLandmarks?.[0]
