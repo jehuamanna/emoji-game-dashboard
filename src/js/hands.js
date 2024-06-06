@@ -87,10 +87,10 @@ export default class HandsController {
     this.canvasDBCtx.fill();
   }
 
-  drawEmojiOnCanvas(emoji, x, y, fontSize = 6) {
+  drawEmojiOnCanvas(emoji, x, y, fontSize = 4) {
     this.canvasDBCtx.font = `${parseInt(
       parseInt(fontSize * this.canvasDB.width) / 100
-    )}px serif`;
+    )}pt serif`;
     this.canvasDBCtx.textAlign = "center";
     this.canvasDBCtx.fillStyle = "black";
     this.canvasDBCtx.textBaseline = "middle"; //"\u{1F91A}"
@@ -99,7 +99,7 @@ export default class HandsController {
   drawText(text, x, y, lineHeight) {
     const lines = text.split("\n");
     for (let i = 0; i < lines.length; i++) {
-      this.canvasDBCtx.font = "22pt serif";
+      this.canvasDBCtx.font = `${0.025 * this.canvasDB.width}pt serif`;
       this.canvasDBCtx.fillText(lines[i], x, y + i * lineHeight);
     }
   }
