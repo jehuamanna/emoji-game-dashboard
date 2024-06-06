@@ -1,4 +1,5 @@
 import Camera from "./camera.js";
+import HandsController, { hands } from "./hands.js";
 
 const cameralement = document.getElementById("webcam");
 const videoDivElement = document.getElementById("video-div");
@@ -101,4 +102,6 @@ window.addEventListener("resize", () => {
   window.videoWidth = width;
   window.videoHeight = height;
   resizeHandler();
+  const handsController = new HandsController();
+  handsController.init();
 })();
