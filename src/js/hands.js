@@ -76,10 +76,10 @@ export default class HandsController {
     return animate();
   }
 
-  drawCircle(color, x, y) {
+  drawCircle(color, x, y, r = 0.06 * this.canvasDB.width) {
     var centerX = x;
     var centerY = y;
-    var radius = 0.1 * this.canvasDB.width;
+    var radius = r;
 
     this.canvasDBCtx.beginPath();
     this.canvasDBCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
@@ -87,7 +87,7 @@ export default class HandsController {
     this.canvasDBCtx.fill();
   }
 
-  drawEmojiOnCanvas(emoji, x, y, fontSize = 8) {
+  drawEmojiOnCanvas(emoji, x, y, fontSize = 6) {
     this.canvasDBCtx.font = `${parseInt(
       parseInt(fontSize * this.canvasDB.width) / 100
     )}px serif`;
@@ -95,6 +95,13 @@ export default class HandsController {
     this.canvasDBCtx.fillStyle = "black";
     this.canvasDBCtx.textBaseline = "middle"; //"\u{1F91A}"
     this.canvasDBCtx.fillText(emoji, x, y);
+  }
+  drawText(text, x, y, lineHeight) {
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      this.canvasDBCtx.font = "22pt serif";
+      this.canvasDBCtx.fillText(lines[i], x, y + i * lineHeight);
+    }
   }
 
   draw() {
@@ -141,13 +148,16 @@ export default class HandsController {
       }
     }
     // console.log(results);
-
-    const emojiX = this.canvasDB.width / 6;
+    var radius = 0.06 * this.canvasDB.width;
+    const emojiX = this.canvasDB.width / 8 - radius;
     const emojiY = this.canvasDB.height / 4;
-    const scoreX = (this.canvas.width * 5) / 6;
+    const scoreX = this.canvas.width / 4 - radius;
     const scoreY = this.canvas.height / 4;
-    const timeX = this.canvas.width / 2;
+    const timeX = (this.canvas.width * 3) / 8 - radius;
     const timeY = this.canvas.height / 4;
+    const speedX = (this.canvas.width * 7) / 8 - radius;
+    const speedY = this.canvas.height / 4;
+
     const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
     const minutes = Math.floor(elapsedTime / 60);
     const remainingSeconds = elapsedTime % 60;
@@ -155,8 +165,15 @@ export default class HandsController {
     this.drawEmojiOnCanvas(this.count, scoreX, scoreY);
     this.drawCircle("#28683c", scoreX, scoreY);
     this.drawCircle("orange", timeX, timeY);
+    this.drawCircle("#e403bb", speedX, speedY, 0.13 * this.canvasDB.width);
     this.drawEmojiOnCanvas(this.count, scoreX, scoreY);
-    this.drawEmojiOnCanvas(`${minutes} : ${remainingSeconds}`, timeX, timeY);
+    this.drawEmojiOnCanvas(`${minutes}:${remainingSeconds}`, timeX, timeY);
+    this.drawText(
+      `Emojies\nper\nMinute:\n\n${parseInt(this.count / (elapsedTime / 60))}`,
+      speedX,
+      speedY - 0.05 * this.canvasDB.width,
+      35
+    );
 
     if (results?.multiHandedness?.[0] || results?.multiHandedness?.[1]) {
       const x = checkActions(
