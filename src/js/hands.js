@@ -69,18 +69,21 @@ export default class HandsController {
 
   onFrame() {
     const animate = (timestamp) => {
-      return new Promise((resolve, reject) => {
-        this.hands.send({ image: this.video }).then(() => {
-          // this.draw();
-          const delta = timestamp - this.lastTime;
-          this.lastTime = timestamp;
-          this.frameCount++;
-          if (delta > 0) {
-            this.fps = Math.round(1000 / delta);
-          }
-          requestAnimationFrame(resolve);
-        });
-      }).then(animate);
+      this.hands
+        .send({ image: this.video })
+        .then(() => {
+          return new Promise((resolve, reject) => {
+            // this.draw();
+            const delta = timestamp - this.lastTime;
+            this.lastTime = timestamp;
+            this.frameCount++;
+            if (delta > 0) {
+              this.fps = Math.round(1000 / delta);
+            }
+            requestAnimationFrame(resolve);
+          });
+        })
+        .then(animate);
     };
     return requestAnimationFrame(animate);
   }
