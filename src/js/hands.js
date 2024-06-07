@@ -36,6 +36,9 @@ export default class HandsController {
     this.emoji_ = undefined;
     this.string_ = undefined;
     this.startTime = 0;
+    this.lastTime = performance.now();
+    this.frameCount = 0;
+    this.fps = 0;
   }
 
   getShuffledDictionary() {
@@ -65,15 +68,21 @@ export default class HandsController {
   }
 
   onFrame() {
-    const animate = () => {
+    const animate = (timestamp) => {
       return new Promise((resolve, reject) => {
         this.hands.send({ image: this.video }).then(() => {
           // this.draw();
+          const delta = timestamp - this.lastTime;
+          this.lastTime = timestamp;
+          this.frameCount++;
+          if (delta > 0) {
+            this.fps = Math.round(1000 / delta);
+          }
           requestAnimationFrame(resolve);
         });
       }).then(animate);
     };
-    return animate();
+    return requestAnimationFrame(animate);
   }
 
   drawCircle(color, x, y, r = 0.06 * this.canvasDB.width) {
@@ -158,6 +167,9 @@ export default class HandsController {
     const speedX = (this.canvas.width * 7) / 8 - radius;
     const speedY = this.canvas.height / 4;
 
+    const FPS_X = (this.canvas.width * 5) / 8 - radius;
+    const FPS_Y = this.canvas.height / 4;
+
     const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
     const minutes = Math.floor(elapsedTime / 60);
     const remainingSeconds = elapsedTime % 60;
@@ -174,6 +186,9 @@ export default class HandsController {
       speedY - 0.05 * this.canvasDB.width,
       0.035 * this.canvasDB.width
     );
+
+    this.drawCircle("yellow", FPS_X, FPS_Y);
+    this.drawEmojiOnCanvas(`FPS: ${this.fps}`, FPS_X, FPS_Y, 2);
 
     if (results?.multiHandedness?.[0] || results?.multiHandedness?.[1]) {
       const x = checkActions(
