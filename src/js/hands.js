@@ -63,26 +63,33 @@ export default class HandsController {
     });
     this.du = new DrawingUtils(this.canvasDB);
     this.hands.onResults(this.onResults);
-    this.onFrame();
+    this.onFrame(this.drawFPS, 30);
     this.startTime = Date.now();
   }
 
-  onFrame() {
-    const animate = (timestamp) => {
-      return new Promise((resolve, reject) => {
-        this.hands.send({ image: this.video });
-        // this.draw();
-        const delta = timestamp - this.lastTime;
-        this.lastTime = timestamp;
-        this.frameCount++;
-        if (delta > 0) {
-          this.fps = Math.round(1000 / delta);
-        }
-        requestAnimationFrame(resolve);
-      }).then(animate);
-    };
-    return requestAnimationFrame(animate);
+  onFrame(fn, fps) {
+    const that = this;
+    (function loop(time) {
+      requestAnimationFrame(loop);
+      const delta = time - that.lastTime;
+      that.lastTime = time;
+      that.frameCount++;
+      if (delta > 0) {
+        that.fps = Math.round(1000 / delta);
+      }
+      fn?.bind(that)();
+    })(0);
   }
+  // await this.hands.send({ image: this.video });
+
+  // // this.draw();
+  // // const delta = timestamp - this.lastTime;
+  // // this.lastTime = timestamp;
+  // // this.frameCount++;
+  // // if (delta > 0) {
+  // //   this.fps = Math.round(1000 / delta);
+  // // }
+  // requestAnimationFrame(animate);
 
   drawCircle(color, x, y, r = 0.06 * this.canvasDB.width) {
     var centerX = x;
@@ -117,8 +124,20 @@ export default class HandsController {
     // requestAnimationFrame(this.draw);
   }
 
+  drawFPS() {
+    this.hands.send({ image: this.video });
+    var radius = 0.06 * this.canvasDB.width;
+
+    const FPS_X = (this.canvas.width * 5) / 8 - radius;
+    const FPS_Y = this.canvas.height / 4;
+
+    this.drawCircle("yellow", FPS_X, FPS_Y);
+    this.drawEmojiOnCanvas(`FPS: ${this.fps}`, FPS_X, FPS_Y, 2);
+  }
+
   onResults(results) {
     // Hide the spinner.
+    // return;
 
     // Update the frame rate.
     // Draw the overlays.
