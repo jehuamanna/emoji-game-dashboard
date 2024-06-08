@@ -63,33 +63,49 @@ export default class HandsController {
     });
     this.du = new DrawingUtils(this.canvasDB);
     this.hands.onResults(this.onResults);
-    this.onFrame(this.drawFPS, 30);
+    this.onFrame(this.drawFPS, 60);
     this.startTime = Date.now();
+    this.seqDict = this.getShuffledDictionary();
   }
 
-  onFrame(fn, fps) {
+  onFrame1(fn, fps) {
     const that = this;
     (function loop(time) {
-      requestAnimationFrame(loop);
       const delta = time - that.lastTime;
       that.lastTime = time;
       that.frameCount++;
       if (delta > 0) {
         that.fps = Math.round(1000 / delta);
       }
-      fn?.bind(that)();
+      return new Promise((resolve, reject) => {
+        fn?.bind(that)().then(() => {
+          resolve(requestAnimationFrame(loop));
+        });
+      });
     })(0);
   }
-  // await this.hands.send({ image: this.video });
 
-  // // this.draw();
-  // // const delta = timestamp - this.lastTime;
-  // // this.lastTime = timestamp;
-  // // this.frameCount++;
-  // // if (delta > 0) {
-  // //   this.fps = Math.round(1000 / delta);
-  // // }
-  // requestAnimationFrame(animate);
+  onFrame(callback, fps) {
+    var delay = 1000 / fps, // calc. time per frame
+      time = null, // start time
+      frame = -1, // frame count
+      tref; // rAF time reference
+    console.log("sofie");
+
+    const loop = (timestamp) => {
+      if (time === null) time = timestamp; // init start time
+      var seg = Math.floor((timestamp - time) / delay); // calc frame no.
+      if (seg > frame) {
+        // moved to next frame?
+        frame = seg; // update
+        callback.bind(this)(frame);
+      }
+      tref = requestAnimationFrame(loop);
+    };
+    loop(0);
+  }
+
+  // onFrame() {}
 
   drawCircle(color, x, y, r = 0.06 * this.canvasDB.width) {
     var centerX = x;
@@ -124,15 +140,15 @@ export default class HandsController {
     // requestAnimationFrame(this.draw);
   }
 
-  drawFPS() {
-    this.hands.send({ image: this.video });
+  async drawFPS(fps) {
+    await this.hands.send({ image: this.video });
     var radius = 0.06 * this.canvasDB.width;
 
     const FPS_X = (this.canvas.width * 5) / 8 - radius;
     const FPS_Y = this.canvas.height / 4;
 
-    this.drawCircle("yellow", FPS_X, FPS_Y);
-    this.drawEmojiOnCanvas(`FPS: ${this.fps}`, FPS_X, FPS_Y, 2);
+    // this.drawCircle("yellow", FPS_X, FPS_Y);
+    // this.drawEmojiOnCanvas(`FPS: ${fps}`, FPS_X, FPS_Y, 2);
   }
 
   onResults(results) {
@@ -143,8 +159,6 @@ export default class HandsController {
     // Draw the overlays.
     this.canvasCtx.save();
     // this.du.drawText();
-
-    this.seqDict = this.getShuffledDictionary();
 
     this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -205,8 +219,8 @@ export default class HandsController {
       0.035 * this.canvasDB.width
     );
 
-    this.drawCircle("yellow", FPS_X, FPS_Y);
-    this.drawEmojiOnCanvas(`FPS: ${this.fps}`, FPS_X, FPS_Y, 2);
+    // this.drawCircle("yellow", FPS_X, FPS_Y);
+    // this.drawEmojiOnCanvas(`FPS: ${this.fps}`, FPS_X, FPS_Y, 2);
 
     if (results?.multiHandedness?.[0] || results?.multiHandedness?.[1]) {
       const x = checkActions(
